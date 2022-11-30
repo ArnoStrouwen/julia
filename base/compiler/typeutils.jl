@@ -132,7 +132,7 @@ function valid_as_lattice(@nospecialize(x))
 end
 
 function valid_typeof_tparam(@nospecialize(t))
-    if t === Symbol || isbitstype(t)
+    if t === Symbol || t === Module || isbitstype(t)
         return true
     end
     isconcretetype(t) || return false
