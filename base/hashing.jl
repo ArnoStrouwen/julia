@@ -114,3 +114,9 @@ function hash(s::String, h::UInt)
     h += memhash_seed
     ccall(memhash, UInt, (Ptr{UInt8}, Csize_t, UInt32), s, sizeof(s), h % UInt32) + h
 end
+
+function hash(m::Module, h::UInt64)
+    parent = parentmodule(m)
+    parent_hash = m === parent ? hash(nameof(parent), h) : hash(parent, h)
+    return hash(nameof(m), parent_hash)
+end

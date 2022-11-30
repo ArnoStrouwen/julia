@@ -137,7 +137,7 @@ function valid_typeof_tparam(@nospecialize(t))
     end
     isconcretetype(t) || return false
     if t <: NamedTuple
-        t = t.parameters[2]
+        t = t.parameters[2]::DataType
     end
     if t <: Tuple
         for p in t.parameters
