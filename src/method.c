@@ -583,11 +583,11 @@ JL_DLLEXPORT jl_code_info_t *jl_code_for_staged(jl_method_instance_t *linfo)
             func = (jl_code_info_t*)ex;
             jl_array_t *stmts = (jl_array_t*)func->code;
             jl_resolve_globals_in_ir(stmts, def->module, linfo->sparam_vals, 1);
+            // respect given linetable if available
         }
         else {
             // Lower the user's expression and resolve references to the type parameters
             func = jl_expand_and_resolve(ex, def->module, linfo->sparam_vals);
-
             if (!jl_is_code_info(func)) {
                 if (jl_is_expr(func) && ((jl_expr_t*)func)->head == jl_error_sym) {
                     ct->ptls->in_pure_callback = 0;
@@ -595,6 +595,7 @@ JL_DLLEXPORT jl_code_info_t *jl_code_for_staged(jl_method_instance_t *linfo)
                 }
                 jl_error("The function body AST defined by this @generated function is not pure. This likely means it contains a closure, a comprehension or a generator.");
             }
+            jl_add_function_name_to_lineinfo(func, (jl_value_t*)def->name);
         }
 
         // If this generated function has an opaque closure, cache it for
@@ -611,7 +612,6 @@ JL_DLLEXPORT jl_code_info_t *jl_code_for_staged(jl_method_instance_t *linfo)
         ct->ptls->in_pure_callback = last_in;
         jl_lineno = last_lineno;
         ct->world_age = last_age;
-        jl_add_function_name_to_lineinfo(func, (jl_value_t*)def->name);
     }
     JL_CATCH {
         ct->ptls->in_pure_callback = last_in;
